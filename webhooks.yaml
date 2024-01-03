@@ -27,8 +27,8 @@ webhooks:
             Return a 200 status to indicate that the data was received
             successfully
 info:
-  title: external-api Webhooks
-  description: external-api Webhooks description
+  title: Webhooks
+  description: Webhooks description
   version: 1.0.0-oas3.1
   contact: {}
 components:
