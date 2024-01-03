@@ -41,8 +41,8 @@ paths:
       tags:
         - Public external api
 info:
-  title: external-api API
-  description: external-api API description
+  title: API
+  description: API description
   version: 1.0.0-oas3.1
   contact: {}
 servers:
