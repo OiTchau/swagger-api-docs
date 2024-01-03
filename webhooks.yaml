@@ -1,0 +1,67 @@
+openapi: 3.1.0
+webhooks:
+  companyCreated:
+    post:
+      requestBody:
+        description: Data of the created company
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyCreatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received
+            successfully
+  companyUpdated:
+    post:
+      requestBody:
+        description: Data of the updated company
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyUpdatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received
+            successfully
+info:
+  title: external-api Webhooks
+  description: external-api Webhooks description
+  version: 1.0.0-oas3.1
+  contact: {}
+components:
+  schemas:
+    CompanyCreatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Company'
+        eventType:
+          type: string
+          default: 'company:created'
+    CompanyUpdatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Company'
+        eventType:
+          type: string
+          default: 'company:updateAllFields'
+    Company:
+      properties:
+        uuid:
+          type: string
+          description: Company internal uuid (in Dayio system)
+        name:
+          type: string
+          description: Company name
+        externalId:
+          type: string
+          description: Company external id (in the client system)
+        active:
+          type: boolean
+          description: Is this company active or not
