@@ -1,0 +1,165 @@
+openapi: 3.1.0
+paths:
+  /v1/external-api/public/company:
+    post:
+      operationId: PublicApiController_createPartnerCompany
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyRequest'
+      responses:
+        '201':
+          description: Company is successfully created
+        '401':
+          description: Invalid provided header token
+      tags:
+        - Public external api
+  /v1/external-api/public/company/{externalCompanyId}:
+    put:
+      operationId: PublicApiController_updatePartnerCompany
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCompanyRequest'
+      responses:
+        '204':
+          description: Company is successfully created
+        '401':
+          description: Invalid provided header token
+        '404':
+          description: Company is not found
+      tags:
+        - Public external api
+info:
+  title: external-api API
+  description: external-api API description
+  version: 1.0.0-oas3.1
+  contact: {}
+servers:
+  - url: https://stg-api.oitchau.com.br
+    description: Stage server (uses test data)
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: dayio-token
+  schemas:
+    Company:
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+    Address:
+      type: object
+      properties:
+        city:
+          type: string
+          description: City
+          example: Hulme
+        country:
+          type: string
+          description: Country code
+          example: GB
+        formatted:
+          type: string
+          description: Full location string
+          example: 100 Princess Rd, Hulme, Manchester M15 5AS, England
+        state:
+          type: string
+          description: State
+          example: England
+        street:
+          type: string
+          description: Street
+          example: Princess Rd
+        streetNumber:
+          type: string
+          description: Street number
+          example: '100'
+        zip:
+          type: string
+          description: Zip code
+          example: M15 5AS
+      required:
+        - country
+        - formatted
+    Location:
+      type: object
+      properties:
+        address:
+          description: Address object
+          allOf:
+            - $ref: '#/components/schemas/Address'
+      required:
+        - address
+    Owner:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Owner user email
+        fullName:
+          type: string
+          description: Owner user full name
+        externalId:
+          type: string
+          description: User primary identifier, used as user id reference between systems
+      required:
+        - email
+        - fullName
+        - externalId
+    CreateCompanyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Company name
+          example: My company
+        location:
+          description: Location information
+          allOf:
+            - $ref: '#/components/schemas/Location'
+        externalCompanyId:
+          type: string
+          description: >-
+            Company primary identifier, used as company id reference between
+            systems
+        owner:
+          description: Owner user intial information
+          allOf:
+            - $ref: '#/components/schemas/Owner'
+      required:
+        - name
+        - externalCompanyId
+        - owner
+    UpdateCompanyRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Company name
+          example: My company
+        location:
+          description: Location information
+          allOf:
+            - $ref: '#/components/schemas/Location'
+      required:
+        - name
+security:
+  - ApiKeyAuth: []
