@@ -40,6 +40,57 @@ paths:
           description: Company is not found
       tags:
         - Public external api
+  /v1/external-api/public/company/{externalCompanyId}/employee:
+    post:
+      operationId: PublicApiController_createPartnerCompanyEmployee
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateExternalUserProfileRequest'
+      responses:
+        '201':
+          description: External user profile successfully created
+        '401':
+          description: Invalid provided header token
+        '404':
+          description: Company is not found
+        '409':
+          description: User profile is already exists
+      tags:
+        - Public external api
+    put:
+      operationId: PublicApiController_updatePartnerCompanyEmployee
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateExternalUserProfileRequest'
+      responses:
+        '204':
+          description: External user profile successfully updated
+        '401':
+          description: Invalid provided header token
+        '404':
+          description: Company is not found
+        '409':
+          description: User profile is not found
+      tags:
+        - Public external api
 info:
   title: API
   description: API description
@@ -71,31 +122,31 @@ components:
         city:
           type: string
           description: City
-          example: Hulme
+          examples: [Hulme]
         country:
           type: string
           description: Country code
-          example: GB
+          examples: [GB]
         formatted:
           type: string
           description: Full location string
-          example: 100 Princess Rd, Hulme, Manchester M15 5AS, England
+          examples: ['100 Princess Rd, Hulme, Manchester M15 5AS, England']
         state:
           type: string
           description: State
-          example: England
+          examples: [England]
         street:
           type: string
           description: Street
-          example: Princess Rd
+          examples: [Princess Rd]
         streetNumber:
           type: string
           description: Street number
-          example: '100'
+          examples: ['100']
         zip:
           type: string
           description: Zip code
-          example: M15 5AS
+          examples: ['M15 5AS']
       required:
         - country
         - formatted
@@ -130,7 +181,7 @@ components:
         name:
           type: string
           description: Company name
-          example: My company
+          examples: [My company]
         location:
           description: Location information
           allOf:
@@ -154,12 +205,138 @@ components:
         name:
           type: string
           description: Company name
-          example: My company
+          examples: [My company]
         location:
           description: Location information
           allOf:
             - $ref: '#/components/schemas/Location'
       required:
+        - name
+    CreateExternalUserProfileRequest:
+      type: object
+      properties:
+        externalId:
+          type: string
+          description: User profile id from client system
+        subsidiary:
+          type: string
+          description: Subsidiary identifier
+        cpf:
+          type: string
+          description: CPF
+        pis:
+          type: string
+          description: PIS
+        department:
+          type: string
+          description: Department identifier
+        matricula:
+          type: string
+          description: Matricula
+        isSupervisor:
+          type: boolean
+          description: Is provided user supervisor
+        subsidiaryCnpj:
+          type: string
+          description: Subsidiary tax id/cnpj
+        supervisorExternalId:
+          type: string
+          description: >-
+            If user is a member of the team of some supervisor, provide his
+            identifier
+        position:
+          type: string
+          description: Position
+        email:
+          type: string
+          description: Email
+        phoneNumber:
+          type: string
+          description: Phone number
+        active:
+          type: boolean
+          description: Is provider user active
+        deactivationDate:
+          type: string
+          description: Deactivation date
+        associateProducts:
+          type: array
+          description: Is provider user active
+          example:
+            - ta
+          items:
+            type: string
+            enum:
+              - ta
+              - projects
+        name:
+          type: string
+          description: User profile full name
+      required:
+        - externalId
+        - name
+    UpdateExternalUserProfileRequest:
+      type: object
+      properties:
+        externalId:
+          type: string
+          description: User profile id from client system
+        subsidiary:
+          type: string
+          description: Subsidiary identifier
+        cpf:
+          type: string
+          description: CPF
+        pis:
+          type: string
+          description: PIS
+        department:
+          type: string
+          description: Department identifier
+        matricula:
+          type: string
+          description: Matricula
+        isSupervisor:
+          type: boolean
+          description: Is provided user supervisor
+        subsidiaryCnpj:
+          type: string
+          description: Subsidiary tax id/cnpj
+        supervisorExternalId:
+          type: string
+          description: >-
+            If user is a member of the team of some supervisor, provide his
+            identifier
+        position:
+          type: string
+          description: Position
+        email:
+          type: string
+          description: Email
+        phoneNumber:
+          type: string
+          description: Phone number
+        active:
+          type: boolean
+          description: Is provider user active
+        deactivationDate:
+          type: string
+          description: Deactivation date
+        associateProducts:
+          type: array
+          description: Is provider user active
+          example:
+            - ta
+          items:
+            type: string
+            enum:
+              - ta
+              - projects
+        name:
+          type: string
+          description: User profile full name
+      required:
+        - externalId
         - name
 security:
   - ApiKeyAuth: []
