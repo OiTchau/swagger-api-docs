@@ -91,6 +91,82 @@ paths:
           description: User profile is not found
       tags:
         - Public external api
+  /v1/external-api/public/company/{externalCompanyId}/clients:
+    post:
+      operationId: ClientsController_createPartnerCompanyClient
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientRequestBody'
+      responses:
+        '201':
+          description: External client successfully created
+        '401':
+          description: Invalid provided header token
+        '404':
+          description: Company is not found
+      tags:
+        - Public external api
+    put:
+      operationId: ClientsController_updatePartnerCompanyClient
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientRequestBody'
+      responses:
+        '204':
+          description: External client successfully updated
+        '401':
+          description: Invalid provided header token
+        '404':
+          description: Company is not found
+      tags:
+        - Public external api
+  /v1/external-api/public/company/{externalCompanyId}/clients/managers:
+    put:
+      operationId: ClientsController_updatePartnerCompanyEmployee
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientManagersRequestBody'
+      responses:
+        '204':
+          description: External client managers successfully updated
+        '401':
+          description: Invalid provided header token
+        '404':
+          description: Company is not found
+        '409':
+          description: User profiles is not found
+      tags:
+        - Public external api
 info:
   title: API
   description: API description
@@ -338,5 +414,77 @@ components:
       required:
         - externalId
         - name
+    CreateClientRequestBody:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Client name
+        email:
+          type: string
+          description: Contact person email
+        contactPerson:
+          type: string
+          description: Contact person name
+        phoneNumber:
+          type: string
+          description: Contact person phone
+        externalId:
+          type: string
+          description: Identifier on the external system
+      required:
+        - name
+        - externalId
+    UpdateClientRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        name:
+          type: string
+          description: Client name
+        email:
+          type: string
+          description: Contact person email
+        contactPerson:
+          type: string
+          description: Contact person name
+        phoneNumber:
+          type: string
+          description: Contact person phone
+      required:
+        - name
+    ApiEntityIdentifiersRequest:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+    ClientManagersRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        managersToAdd:
+          description: Client Managers to link
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        managersToDelete:
+          description: Client Managers to unlink
+          type: array
+          items:
+            $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
 security:
   - ApiKeyAuth: []
