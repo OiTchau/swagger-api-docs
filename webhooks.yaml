@@ -26,6 +26,32 @@ webhooks:
           description: >-
             Return a 200 status to indicate that the data was received
             successfully
+  userProfileCreated:
+    post:
+      requestBody:
+        description: Data of the created user profile
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileCreatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received
+            successfully
+  userProfileUpdated:
+    post:
+      requestBody:
+        description: Data of the updated user profile
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received
+            successfully
 info:
   title: Webhooks
   description: Webhooks description
@@ -65,3 +91,41 @@ components:
         active:
           type: boolean
           description: Is this company active or not
+    UserProfileCreatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/UserProfile'
+        eventType:
+          type: string
+          default: 'userProfile:created'
+    UserProfileUpdatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/UserProfile'
+        eventType:
+          type: string
+          default: 'userProfile:updateAllFields'
+    UserProfile:
+      properties:
+        uuid:
+          type: string
+          description: User Profile internal uuid (in Dayio system)
+        fullName:
+          type: string
+          description: User Profile name
+        externalId:
+          type: string
+          description: User Profile external id (in the client system)
+        active:
+          type: boolean
+          description: Is this company active or not
+        matricula:
+          type: string
+          description: User profile matricula
+        pis:
+          type: string
+          description: User profile pis
