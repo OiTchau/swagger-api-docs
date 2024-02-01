@@ -2,27 +2,28 @@ openapi: 3.1.0
 paths:
   /v1/external-api/public/company:
     post:
-      operationId: PublicApiController_createPartnerCompany
+      operationId: CompaniesController_createPartnerCompany
+      parameters:
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateCompanyRequest'
+              $ref: '#/components/schemas/CreateCompanyRequestBody'
       responses:
         '201':
           description: Company is successfully created
-        '401':
+        '401': &ref_4
           description: Invalid provided header token
-      tags:
-        - Public external api
+
   /v1/external-api/public/company/{externalCompanyId}:
     put:
-      operationId: PublicApiController_updatePartnerCompany
+      operationId: CompaniesController_updatePartnerCompany
       parameters:
         - name: externalCompanyId
           required: true
           in: path
+          description: External company id (identifier defined on the client side)
           schema:
             type: string
       requestBody:
@@ -30,23 +31,23 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCompanyRequest'
+              $ref: '#/components/schemas/UpdateCompanyRequestBody'
       responses:
         '204':
           description: Company is successfully created
-        '401':
-          description: Invalid provided header token
+        '401': *ref_4
         '404':
           description: Company is not found
-      tags:
-        - Public external api
+
   /v1/external-api/public/company/{externalCompanyId}/employee:
     post:
-      operationId: PublicApiController_createPartnerCompanyEmployee
+      operationId: UserProfilesController_createPartnerCompanyEmployee
       parameters:
+
         - name: externalCompanyId
           required: true
           in: path
+          description: External company id (identifier defined on the client side)
           schema:
             type: string
       requestBody:
@@ -54,24 +55,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExternalUserProfileRequest'
+              $ref: '#/components/schemas/CreateExternalUserProfileRequestBody'
       responses:
         '201':
           description: External user profile successfully created
-        '401':
+        '401': &ref_7
           description: Invalid provided header token
         '404':
           description: Company is not found
         '409':
           description: User profile is already exists
-      tags:
-        - Public external api
+
     put:
-      operationId: PublicApiController_updatePartnerCompanyEmployee
+      operationId: UserProfilesController_updatePartnerCompanyEmployee
       parameters:
         - name: externalCompanyId
           required: true
           in: path
+          description: External company id (identifier defined on the client side)
           schema:
             type: string
       requestBody:
@@ -79,18 +80,45 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateExternalUserProfileRequest'
+              $ref: '#/components/schemas/UpdateExternalUserProfileRequestBody'
       responses:
         '204':
           description: External user profile successfully updated
-        '401':
-          description: Invalid provided header token
+        '401': *ref_7
         '404':
           description: Company is not found
         '409':
           description: User profile is not found
-      tags:
-        - Public external api
+
+  /v1/external-api/public/company/{externalCompanyId}/employee/{externalProfileId}/token:
+    get:
+      operationId: UserProfilesController_getExternalAuthToken
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+        - name: externalProfileId
+          required: true
+          in: path
+          description: >-
+            User profile user profile external id (identifier defined on the
+            client side)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Auth token successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetExternalAuthTokenResponse'
+        '401': *ref_7
+        '404':
+          description: Company or user profile is not found
+
   /v1/external-api/public/company/{externalCompanyId}/clients:
     post:
       operationId: ClientsController_createPartnerCompanyClient
@@ -110,12 +138,11 @@ paths:
       responses:
         '201':
           description: External client successfully created
-        '401':
+        '401': &ref_10
           description: Invalid provided header token
         '404':
           description: Company is not found
-      tags:
-        - Public external api
+
     put:
       operationId: ClientsController_updatePartnerCompanyClient
       parameters:
@@ -134,12 +161,10 @@ paths:
       responses:
         '204':
           description: External client successfully updated
-        '401':
-          description: Invalid provided header token
+        '401': *ref_10
         '404':
           description: Company is not found
-      tags:
-        - Public external api
+
   /v1/external-api/public/company/{externalCompanyId}/clients/managers:
     put:
       operationId: ClientsController_updatePartnerCompanyEmployee
@@ -159,22 +184,252 @@ paths:
       responses:
         '204':
           description: External client managers successfully updated
-        '401':
-          description: Invalid provided header token
+        '401': *ref_10
         '404':
           description: Company is not found
         '409':
           description: User profiles is not found
-      tags:
-        - Public external api
+
+  /v1/external-api/public/company/{externalCompanyId}/services:
+    post:
+      operationId: ServicesController_createPartnerCompanyClient
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceRequestBody'
+      responses:
+        '201':
+          description: External service successfully created
+        '401': &ref_13
+          description: Invalid provided header token
+        '404':
+          description: Company is not found
+
+    put:
+      operationId: ServicesController_updatePartnerCompanyClient
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateServiceRequestBody'
+      responses:
+        '204':
+          description: External service successfully updated
+        '401': *ref_13
+        '404':
+          description: Company is not found
+
+  /v1/external-api/public/company/{externalCompanyId}/tasks:
+    post:
+      operationId: TasksController_createTask
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskRequestBodyV2'
+      responses:
+        '201':
+          description: ''
+        '401': &ref_16
+          description: Invalid provided header token
+
+    put:
+      operationId: TasksController_updateTask
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTaskRequestBodyV2'
+      responses:
+        '200':
+          description: ''
+        '401': *ref_16
+
+    delete:
+      operationId: TasksController_delete
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteTaskRequestBodyV2'
+      responses:
+        '200':
+          description: ''
+        '401': *ref_16
+
+  /v1/external-api/public/company/{externalCompanyId}/projects:
+    post:
+      operationId: ProjectsController_create
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectRequestBody'
+      responses:
+        '201':
+          description: ''
+        '401': &ref_19
+          description: Invalid provided header token
+
+    put:
+      operationId: ProjectsController_update
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProjectRequestBody'
+      responses:
+        '200':
+          description: ''
+        '401': *ref_19
+
+    delete:
+      operationId: ProjectsController_delete
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteProjectRequestBody'
+      responses:
+        '200':
+          description: ''
+        '401': *ref_19
+
+  /v1/external-api/public/company/{externalCompanyId}/projects/archive:
+    put:
+      operationId: ProjectsController_archive
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArchiveProjectRequestBody'
+      responses:
+        '200':
+          description: ''
+        '401': *ref_19
+
+  /v1/external-api/public/company/{externalCompanyId}/projects/members:
+    post:
+      operationId: ProjectsController_assignMembers
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignProjectMembersRequestBody'
+      responses:
+        '201':
+          description: ''
+        '401': *ref_19
+
+    delete:
+      operationId: ProjectsController_deleteMember
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteProjectMemberRequestBody'
+      responses:
+        '200':
+          description: ''
+        '401': *ref_19
 info:
   title: API
   description: API description
   version: 1.0.0-oas3.1
-  contact: {}
+  contact: { }
 servers:
   - url: https://stg-api.oitchau.com.br
     description: Stage server (uses test data)
+
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -182,47 +437,57 @@ components:
       in: header
       name: dayio-token
   schemas:
-    Company:
-      required:
-        - id
-        - name
+    CreateWebhookRequestBody:
+      type: object
       properties:
-        id:
-          type: integer
-          format: int64
-        name:
+        webhookUrl:
           type: string
+        companyUuid:
+          type: string
+        partnerUuid:
+          type: string
+      required:
+        - webhookUrl
+    CreateConsumerRequestBody:
+      type: object
+      properties:
+        companyUuid:
+          type: string
+          description: Company uuid, used for company that is not related to the partner
+        partnerUuid:
+          type: string
+          description: Partner uuid
     Address:
       type: object
       properties:
         city:
           type: string
           description: City
-          examples: [Hulme]
+          example: Hulme
         country:
           type: string
           description: Country code
-          examples: [GB]
+          example: GB
         formatted:
           type: string
           description: Full location string
-          examples: ['100 Princess Rd, Hulme, Manchester M15 5AS, England']
+          example: 100 Princess Rd, Hulme, Manchester M15 5AS, England
         state:
           type: string
           description: State
-          examples: [England]
+          example: England
         street:
           type: string
           description: Street
-          examples: [Princess Rd]
+          example: Princess Rd
         streetNumber:
           type: string
           description: Street number
-          examples: ['100']
+          example: '100'
         zip:
           type: string
           description: Zip code
-          examples: ['M15 5AS']
+          example: M15 5AS
       required:
         - country
         - formatted
@@ -251,13 +516,13 @@ components:
         - email
         - fullName
         - externalId
-    CreateCompanyRequest:
+    CreateCompanyRequestBody:
       type: object
       properties:
         name:
           type: string
           description: Company name
-          examples: [My company]
+          example: My company
         location:
           description: Location information
           allOf:
@@ -268,27 +533,27 @@ components:
             Company primary identifier, used as company id reference between
             systems
         owner:
-          description: Owner user intial information
+          description: Initial owner user information
           allOf:
             - $ref: '#/components/schemas/Owner'
       required:
         - name
         - externalCompanyId
         - owner
-    UpdateCompanyRequest:
+    UpdateCompanyRequestBody:
       type: object
       properties:
         name:
           type: string
           description: Company name
-          examples: [My company]
+          example: My company
         location:
           description: Location information
           allOf:
             - $ref: '#/components/schemas/Location'
       required:
         - name
-    CreateExternalUserProfileRequest:
+    CreateExternalUserProfileRequestBody:
       type: object
       properties:
         externalId:
@@ -296,7 +561,7 @@ components:
           description: User profile id from client system
         subsidiary:
           type: string
-          description: Subsidiary identifier
+          description: Subsidiary identifier (uuid)
         cpf:
           type: string
           description: CPF
@@ -305,7 +570,7 @@ components:
           description: PIS
         department:
           type: string
-          description: Department identifier
+          description: Department identifier (uuid)
         matricula:
           type: string
           description: Matricula
@@ -322,7 +587,7 @@ components:
             identifier
         position:
           type: string
-          description: Position
+          description: Position name
         email:
           type: string
           description: Email
@@ -338,9 +603,9 @@ components:
         associateProducts:
           type: array
           description: Is provider user active
-          example:
+          example: &ref_21
             - ta
-          items:
+          items: &ref_22
             type: string
             enum:
               - ta
@@ -351,7 +616,7 @@ components:
       required:
         - externalId
         - name
-    UpdateExternalUserProfileRequest:
+    UpdateExternalUserProfileRequestBody:
       type: object
       properties:
         externalId:
@@ -359,7 +624,7 @@ components:
           description: User profile id from client system
         subsidiary:
           type: string
-          description: Subsidiary identifier
+          description: Subsidiary identifier (uuid)
         cpf:
           type: string
           description: CPF
@@ -368,7 +633,7 @@ components:
           description: PIS
         department:
           type: string
-          description: Department identifier
+          description: Department identifier (uuid)
         matricula:
           type: string
           description: Matricula
@@ -385,7 +650,7 @@ components:
             identifier
         position:
           type: string
-          description: Position
+          description: Position name
         email:
           type: string
           description: Email
@@ -401,20 +666,23 @@ components:
         associateProducts:
           type: array
           description: Is provider user active
-          example:
-            - ta
-          items:
-            type: string
-            enum:
-              - ta
-              - projects
+          example: *ref_21
+          items: *ref_22
         name:
           type: string
           description: User profile full name
       required:
         - externalId
         - name
-    CreateClientRequestBody:
+    GetExternalAuthTokenResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Auth token that is used to work with application
+      required:
+        - token
+    CreateClientRequest:
       type: object
       properties:
         name:
@@ -435,15 +703,16 @@ components:
       required:
         - name
         - externalId
-    UpdateClientRequestBody:
+    CreateClientRequestBody:
       type: object
       properties:
-        uuid:
-          type: string
-          description: Entity uuid
-        externalId:
-          type: string
-          description: Entity external id
+        content:
+          $ref: '#/components/schemas/CreateClientRequest'
+      required:
+        - content
+    UpdateClientRequest:
+      type: object
+      properties:
         name:
           type: string
           description: Client name
@@ -458,6 +727,19 @@ components:
           description: Contact person phone
       required:
         - name
+    UpdateClientRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/UpdateClientRequest'
+      required:
+        - content
     ApiEntityIdentifiersRequest:
       type: object
       properties:
@@ -467,15 +749,9 @@ components:
         externalId:
           type: string
           description: Entity external id
-    ClientManagersRequestBody:
+    ClientManagersRequest:
       type: object
       properties:
-        uuid:
-          type: string
-          description: Entity uuid
-        externalId:
-          type: string
-          description: Entity external id
         managersToAdd:
           description: Client Managers to link
           type: array
@@ -486,5 +762,429 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+    ClientManagersRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/ClientManagersRequest'
+      required:
+        - content
+    CreateServiceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Service name
+        costPerHour:
+          type: number
+          description: Service cost per hour
+        createdBy:
+          description: Profile uuid which is invoked the creation
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        externalId:
+          type: string
+          description: Service external id
+      required:
+        - name
+        - costPerHour
+        - createdBy
+    CreateServiceRequestBody:
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/CreateServiceRequest'
+      required:
+        - content
+    UpdateServiceRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Service name
+        costPerHour:
+          type: number
+          description: Service cost per hour
+        updatedBy:
+          description: Profile uuid which is invoked the creation
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        startDate:
+          type: string
+          description: Service start date
+      required:
+        - name
+        - costPerHour
+        - updatedBy
+        - startDate
+    UpdateServiceRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/UpdateServiceRequest'
+      required:
+        - content
+    CreateTaskRequestV2:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Task name
+        services:
+          description: Related task services
+          type: array
+          items:
+            type: string
+        tags:
+          description: Related task tags
+          type: array
+          items:
+            type: string
+        externalAttributes:
+          title: Related task tags
+          type: array
+          items:
+            type: string
+        project:
+          title: Related task project
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        createdBy:
+          description: Reference to user that invoked the action
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        externalId:
+          type: string
+          description: Task external identifier
+      required:
+        - name
+        - project
+        - createdBy
+    CreateTaskRequestBodyV2:
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/CreateTaskRequestV2'
+      required:
+        - content
+    UpdateTaskRequestV2:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Task name
+        services:
+          description: Related task services
+          type: array
+          items:
+            type: string
+        tags:
+          description: Related task tags
+          type: array
+          items:
+            type: string
+        externalAttributes:
+          title: Related task tags
+          type: array
+          items:
+            type: string
+        project:
+          title: Related task project
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        updatedBy:
+          description: Reference to user that invoked the action
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+      required:
+        - name
+        - project
+        - updatedBy
+    UpdateTaskRequestBodyV2:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/UpdateTaskRequestV2'
+      required:
+        - content
+    DeleteTaskRequestV2:
+      type: object
+      properties:
+        updatedBy:
+          description: Reference to user that invoked the action
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+      required:
+        - updatedBy
+    DeleteTaskRequestBodyV2:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/DeleteTaskRequestV2'
+      required:
+        - content
+    CreateProjectRequest:
+      type: object
+      properties:
+        client:
+          description: Client to which referencing project
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        estimatedCost:
+          type: number
+          description: Estimated cost of the project
+        estimatedHours:
+          type: number
+          description: Estimated hours of the project
+        id:
+          type: string
+          description: Project id
+        isPublic:
+          type: boolean
+          description: >-
+            Is given project public or not, means that all company members have
+            access to it
+        locationUuids:
+          description: Locations that selectable for this project
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+          description: Project name
+        owner:
+          description: Reference to user that is owner
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        restrictBasedOnSchedule:
+          type: boolean
+        customFieldsSettings:
+          description: Additional custom fields for the project
+          type: array
+          items:
+            type: string
+        createdBy:
+          description: Reference to user that invoked the action
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        externalId:
+          type: string
+          description: Project external identifier
+      required:
+        - client
+        - estimatedCost
+        - estimatedHours
+        - id
+        - isPublic
+        - name
+        - owner
+        - restrictBasedOnSchedule
+        - createdBy
+    CreateProjectRequestBody:
+      type: object
+      properties:
+        content:
+          $ref: '#/components/schemas/CreateProjectRequest'
+      required:
+        - content
+    UpdateProjectRequest:
+      type: object
+      properties:
+        client:
+          description: Client to which referencing project
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        estimatedCost:
+          type: number
+          description: Estimated cost of the project
+        estimatedHours:
+          type: number
+          description: Estimated hours of the project
+        id:
+          type: string
+          description: Project id
+        isPublic:
+          type: boolean
+          description: >-
+            Is given project public or not, means that all company members have
+            access to it
+        locationUuids:
+          description: Locations that selectable for this project
+          type: array
+          items:
+            type: string
+        name:
+          type: string
+          description: Project name
+        owner:
+          description: Reference to user that is owner
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        restrictBasedOnSchedule:
+          type: boolean
+        customFieldsSettings:
+          description: Additional custom fields for the project
+          type: array
+          items:
+            type: string
+        updatedBy:
+          description: Reference to user that invoked the action
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+      required:
+        - client
+        - estimatedCost
+        - estimatedHours
+        - id
+        - isPublic
+        - name
+        - owner
+        - restrictBasedOnSchedule
+        - updatedBy
+    UpdateProjectRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/UpdateProjectRequest'
+      required:
+        - content
+    ArchiveProjectRequest:
+      type: object
+      properties:
+        updatedBy:
+          description: Reference to user that invoked the action
+          oneOf:
+            - $ref: '#/components/schemas/UuidIdentifier'
+            - $ref: '#/components/schemas/ExternalIdIdentifier'
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+      required:
+        - updatedBy
+    ArchiveProjectRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/ArchiveProjectRequest'
+      required:
+        - content
+    DeleteProjectRequest:
+      type: object
+      properties:
+        updatedBy:
+          description: Reference to user that invoked the action
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+      required:
+        - updatedBy
+    DeleteProjectRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/DeleteProjectRequest'
+      required:
+        - content
+    AssignProjectMembersRequest:
+      type: object
+      properties:
+        userProfiles:
+          description: Reference to users that associated with project
+          type: array
+          items:
+            type: string
+        services:
+          description: Reference to services associated with project
+          type: array
+          items:
+            type: string
+        requestedBy:
+          description: Reference to user that invoked the action
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+      required:
+        - userProfiles
+        - services
+        - requestedBy
+    AssignProjectMembersRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/AssignProjectMembersRequest'
+      required:
+        - content
+    DeleteProjectMemberRequest:
+      type: object
+      properties:
+        userProfile:
+          description: Reference to user that will be un-linked from project
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+        service:
+          description: Reference to service that will be un-linked from project
+          allOf:
+            - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
+      required:
+        - userProfile
+        - service
+    DeleteProjectMemberRequestBody:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+        content:
+          $ref: '#/components/schemas/DeleteProjectMemberRequest'
+      required:
+        - content
 security:
   - ApiKeyAuth: []
