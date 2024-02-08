@@ -52,6 +52,175 @@ webhooks:
           description: >-
             Return a 200 status to indicate that the data was received
             successfully
+  ClientCreated:
+    post:
+      requestBody:
+        description: Data of the created client
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientCreatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ClientUpdated:
+    post:
+      requestBody:
+        description: Data of the updated client
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClientUpdatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ServiceCreated:
+    post:
+      requestBody:
+        description: Data of the created service
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceCreatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ServiceUpdated:
+    post:
+      requestBody:
+        description: Data of the updated service
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceUpdatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ServiceProfileAssigned:
+    post:
+      requestBody:
+        description: Data of the associated profile to service
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceProfile'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ServiceProfileRevoked:
+    post:
+      requestBody:
+        description: Data of the revoked profile from service
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceProfile'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ProjectCreated:
+    post:
+      requestBody:
+        description: Data of the created project
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ProjectUpdated:
+    post:
+      requestBody:
+        description: Data of the updated project
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ProjectProfileAssigned:
+    post:
+      requestBody:
+        description: Data of the profile associated with the project
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectProfile'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ProjectProfileRevoked:
+    post:
+      requestBody:
+        description: Data of the profile revoked from the project
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectProfile'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ProjectServiceAssigned:
+    post:
+      requestBody:
+        description: Data of the service assigned to the project
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectService'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  ProjectServiceRevoked:
+    post:
+      requestBody:
+        description: Data of the service revoked from the project
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectService'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  TaskCreated:
+    post:
+      requestBody:
+        description: Data of the created task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+  TaskUpdated:
+    post:
+      requestBody:
+        description: Data of the updated task
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskUpdatedEvent'
+      responses:
+        '200':
+          description: >-
+            Return a 200 status to indicate that the data was received successfully
+
 info:
   title: Webhooks
   description: Webhooks description
@@ -129,3 +298,258 @@ components:
         pis:
           type: string
           description: User profile pis
+    ClientCreatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Client'
+        eventType:
+          type: string
+          default: 'client:created'
+    ClientUpdatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Client'
+        eventType:
+          type: string
+          default: 'client:updated'
+    ServiceCreatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Service'
+        eventType:
+          type: string
+          default: 'service:created'
+    ServiceUpdatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Service'
+        eventType:
+          type: string
+          default: 'service:updated'
+    ProjectCreatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Project'
+        eventType:
+          type: string
+          default: 'project:created'
+    ProjectUpdatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Project'
+        eventType:
+          type: string
+          default: 'project:updated'
+    TaskCreatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Task'
+        eventType:
+          type: string
+          default: 'task:created'
+    TaskUpdatedEvent:
+      properties:
+        data:
+          description: Event data
+          allOf:
+            - $ref: '#/components/schemas/Task'
+        eventType:
+          type: string
+          default: 'task:updated'
+    Client:
+      properties:
+        name:
+          type: string
+          description: Client name
+        uuid:
+          type: string
+          description: Client uuid
+        externalId:
+          type: string
+          description: Client external identifier
+        email:
+          type: string
+          description: Client contact person email
+        contactPerson:
+          type: string
+          description: Client contact person name
+        phoneNumber:
+          type: string
+          description: Client contact person phone number
+        companyUuid:
+          type: string
+          description: Client related company uuid
+    Service:
+      properties:
+        uuid:
+          type: string
+          description: Service uuid
+        externalId:
+          type: string
+          description: Service external identifier
+        name:
+          type: string
+          description: Service name
+        costPerHour:
+          type: number
+          description: Service cost per hour
+        startDate:
+          type: string
+          description: Service start date
+        status:
+          type: string
+          description: Service status
+        isDefault:
+          type: boolean
+          description: Is service default for the company
+    Project:
+      properties:
+        uuid:
+          type: string
+          description: Project uuid
+        externalId:
+          type: string
+          description: Project external identifier
+        name:
+          type: string
+          description: Project name
+        ownerUuid:
+          type: string
+          description: Project owner user uuid
+        locationUuids:
+          type: array
+          items:
+            type: string
+          description: Project related location uuid's
+        clientUuid:
+          type: string
+          description: Project related client uuid
+        deletedAt:
+          type: string
+          description: Project deleted at date
+        status:
+          type: string
+          description: Project status
+        restrictBasedOnSchedule:
+          type: boolean
+        estimatedHours:
+          type: number
+          description: Project estimated hours number
+        estimatedCost:
+          type: number
+          description: Project estimated cost number
+        isPublic:
+          type: boolean
+          description: Is project accessible for all members
+        clientExternalId:
+          type: string
+          description: Project client external identifier
+    Task:
+      properties:
+        uuid:
+          type: string
+          description: Task uuid
+        externalId:
+          type: string
+          description: Task external identifier
+        name:
+          type: string
+          description: Task name
+        projectUuid:
+          type: string
+          description: Task project uuid
+        deletedAt:
+          type: string
+          description: Task deleted at date
+        projectExternalId:
+          type: string
+          description: Task project external identifier
+    ServiceProfile:
+      properties:
+        userProfileUuid:
+          type: string
+          description: User uuid that was associated with service
+        serviceUuid:
+          type: string
+          description: Service uuid
+        companyUuid:
+          type: string
+          description: Related company uuid
+        createdBy:
+          type: string
+          description: User uuid what was executed association
+        createdAt:
+          type: string
+          description: User uuid that was invoked association
+        createdByExternalId:
+          type: string
+          description: User external identifier that was invoked association
+        userProfileExternalId:
+          type: string
+          description: User external identifier that was associated to service
+    ProjectProfile:
+      properties:
+        userProfileUuid:
+          type: string
+          description: User uuid that was associated with project
+        projectUuid:
+          type: string
+          description: Project uuid
+        companyUuid:
+          type: string
+          description: Related company uuid
+        createdBy:
+          type: string
+          description: User uuid what was executed association
+        createdAt:
+          type: string
+          description: User uuid that was invoked association
+        createdByExternalId:
+          type: string
+          description: User external identifier that was invoked association
+        userProfileExternalId:
+          type: string
+          description: User external identifier that was associated to service
+        projectExternalId:
+          type: string
+          description: Project external identifier
+    ProjectService:
+      properties:
+        serviceUuid:
+          type: string
+          description: Service uuid
+        projectUuid:
+          type: string
+          description: Project uuid
+        companyUuid:
+          type: string
+          description: Related company uuid
+        createdBy:
+          type: string
+          description: User uuid what was executed association
+        createdAt:
+          type: string
+          description: User uuid that was invoked association
+        createdByExternalId:
+          type: string
+          description: User external identifier that was invoked association
+        serviceExternalId:
+          type: string
+          description: Service external identifier that was associated to project
+        projectExternalId:
+          type: string
+          description: Project external identifier
