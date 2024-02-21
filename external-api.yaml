@@ -3,7 +3,6 @@ paths:
   /v1/external-api/public/company:
     post:
       operationId: CompaniesController_createPartnerCompany
-      parameters:
       requestBody:
         required: true
         content:
@@ -13,6 +12,10 @@ paths:
       responses:
         '201':
           description: Company is successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseEntityUuidExternalIdResponse'
         '401': &ref_4
           description: Invalid provided header token
 
@@ -90,9 +93,9 @@ paths:
         '409':
           description: User profile is not found
 
-  /v1/external-api/public/company/{externalCompanyId}/employee/{externalProfileId}/token:
+  /v1/external-api/public/company/{externalCompanyId}/employee/{externalProfileId}/auth-url:
     get:
-      operationId: UserProfilesController_getExternalAuthToken
+      operationId: UserProfilesController_getExternalAuthUrl
       parameters:
         - name: externalCompanyId
           required: true
@@ -110,11 +113,11 @@ paths:
             type: string
       responses:
         '200':
-          description: Auth token successfully retrieved
+          description: Auth url for iframe successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetExternalAuthTokenResponse'
+                $ref: '#/components/schemas/GetExternalAuthUrlResponse'
         '401': *ref_7
         '404':
           description: Company or user profile is not found
@@ -432,10 +435,10 @@ servers:
 
 components:
   securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: dayio-token
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     CreateWebhookRequestBody:
       type: object
@@ -674,12 +677,12 @@ components:
       required:
         - externalId
         - name
-    GetExternalAuthTokenResponse:
+    GetExternalAuthUrlResponse:
       type: object
       properties:
-        token:
+        url:
           type: string
-          description: Auth token that is used to work with application
+          description: Auth url that is used to work open the iframe
       required:
         - token
     CreateClientRequest:
@@ -1186,5 +1189,17 @@ components:
           $ref: '#/components/schemas/DeleteProjectMemberRequest'
       required:
         - content
+    BaseEntityUuidExternalIdResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Given entity uuid(PK)
+        externalId:
+          type: string
+          description: Entity externalId field
+      required:
+        - uuid
+        - externalId
 security:
-  - ApiKeyAuth: []
+  - bearerAuth: []
