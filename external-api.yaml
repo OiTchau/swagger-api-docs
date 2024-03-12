@@ -426,7 +426,11 @@ paths:
         '401': *ref_19
 info:
   title: API
-  description: API description
+  description: >-
+    This is api documentation for <b>Day.io</b> api.<br />
+    To start using the api, communicate to <b>Day.io</b> to do all required configuration and provide the specific token that required to make api calls.<br />
+    This token must be added to the each request as Authorization: 'Bearer \<token>'.<br />
+    <i>In this version same token will be used for all requests, but in the next version this token will be used only for configuration of the webhooks and creation of the new company, all company related requests will be executed via company scoped token wich will be obtained after company creation</i>
   version: 1.0.0-oas3.1
   contact: { }
 servers:
