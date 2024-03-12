@@ -223,7 +223,11 @@ webhooks:
 
 info:
   title: Webhooks
-  description: Webhooks description
+  description: >-
+    Webhooks are automated messages sent from day.io when action with representing entity was successfully executed. <br />
+    In the case of the partner, all related company events will be send to the same partner webhook url. <br />
+    To start receiving webhooks ask Day.io to configure webhooks for you. <br />
+    We will provide the specific token that will be added as authorization header(Authorization: 'Bearer \<token>') to verify that the webhook request was send from us. <br />
   version: 1.0.0-oas3.1
   contact: {}
 components:
