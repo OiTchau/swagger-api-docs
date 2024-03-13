@@ -3,6 +3,8 @@ paths:
   /v1/external-api/public/company:
     post:
       operationId: CompaniesController_createPartnerCompany
+      tags:
+        - company
       requestBody:
         required: true
         content:
@@ -15,13 +17,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BaseEntityUuidExternalIdResponse'
+                $ref: '#/components/schemas/CreateCompanyResponse'
         '401': &ref_4
           description: Invalid provided header token
 
   /v1/external-api/public/company/{externalCompanyId}:
     put:
       operationId: CompaniesController_updatePartnerCompany
+      tags:
+        - company
       parameters:
         - name: externalCompanyId
           required: true
@@ -45,8 +49,9 @@ paths:
   /v1/external-api/public/company/{externalCompanyId}/employee:
     post:
       operationId: UserProfilesController_createPartnerCompanyEmployee
+      tags:
+        - employee
       parameters:
-
         - name: externalCompanyId
           required: true
           in: path
@@ -71,6 +76,8 @@ paths:
 
     put:
       operationId: UserProfilesController_updatePartnerCompanyEmployee
+      tags:
+        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -96,6 +103,8 @@ paths:
   /v1/external-api/public/company/{externalCompanyId}/employee/{externalProfileId}/auth-url:
     get:
       operationId: UserProfilesController_getExternalAuthUrl
+      tags:
+        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -424,14 +433,89 @@ paths:
         '200':
           description: ''
         '401': *ref_19
+
+  v1/external-api/public/configuration/partner/{partnerUuid}/webhooks:
+    post:
+      operationId: ConfigurationController_upsertPartnerWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: partnerUuid
+          required: true
+          in: path
+          description: Partner uuid
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertWebhookRequestBody'
+      responses:
+        '201':
+          description: 'Successfully upserted webhook config for partner'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfigurationResponse'
+        '401': *ref_19
+    get:
+      operationId: ConfigurationController_getPartnerWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: partnerUuid
+          required: true
+          in: path
+          description: Partner uuid
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 'Successfully get webhook config for partner'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfigurationResponse'
+        '401': *ref_19
+    delete:
+      operationId: ConfigurationController_deletePartnerWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: partnerUuid
+          required: true
+          in: path
+          description: Partner uuid
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Successfully deleted webhook config for partner'
+        '401': *ref_19
+
 info:
   title: API
   description: >-
+    <h2>Summary</h2>
     This is api documentation for <b>Day.io</b> api.<br />
     To start using the api, communicate to <b>Day.io</b> to do all required configuration and provide the specific token that required to make api calls.<br />
     This token must be added to the each request as Authorization: 'Bearer \<token>'.<br />
-    <i>In this version same token will be used for all requests, but in the next version this token will be used only for configuration of the webhooks and creation of the new company, all company related requests will be executed via company scoped token wich will be obtained after company creation</i>
-  version: 1.0.0-oas3.1
+    There 2 types of tokens:
+      <ul>
+      <li>with partner lvl permissions - used to only create new company and do configuration for partner lvl webhooks;</li>
+      <li>with company lvl permissions - used to invoke actions specific to provided company.</li>
+      </ul>
+    <h2>Flow</h2>
+    <ol>
+      <li>Communicate to <b>Day.io</b> and receive partner token.</li>
+      <li>Provide webhooks configuration using <a href="#configuration/ConfigurationController_upsertPartnerWebhookConfiguration" target="_blank">Configure webhooks</a> and store token to verify webhook sender.</li>
+      <li>Create the company using <a href="#company/CompaniesController_createPartnerCompany" target="_blank">Create Company</a> and store company token to use it in the company specific actions, it also will create owner user.</li>
+      <li>Add company employees using <a href="#employee/UserProfilesController_createPartnerCompanyEmployee" target="_blank">Create Employee</a>.</li>
+      <li>Generate authorisation url for opening <b>Day.io</b> iframe using <a href="#employee/UserProfilesController_getExternalAuthUrl" target="_blank">Generate auth url</a>.</li>
+    </ol>
+  version: 1.0.5
   contact: { }
 servers:
   - url: https://stg-api.oitchau.com.br
@@ -547,6 +631,21 @@ components:
         - name
         - externalCompanyId
         - owner
+    CreateCompanyResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Company uuid (identifier in day.io)
+        externalId:
+          type: string
+          description: Company identifier in client system
+        name:
+          type: string
+          description: Company name
+        token:
+          type: string
+          description: JWT token for company specific actions
     UpdateCompanyRequestBody:
       type: object
       properties:
@@ -753,6 +852,18 @@ components:
         uuid:
           type: string
           description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+    UuidIdentifier:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+    ExternalIdIdentifier:
+      type: object
+      properties:
         externalId:
           type: string
           description: Entity external id
@@ -1205,5 +1316,32 @@ components:
       required:
         - uuid
         - externalId
+    UpsertWebhookRequestBody:
+      type: object
+      properties:
+        webhookUrl:
+          type: string
+          description: Url of the webhook callback
+        returnFullEntity:
+          type: boolean
+          description: Flag that define webhook event payload, if set to true will be returned full entity othwerise only id
+        required:
+          - webhookUrl
+          - returnFullEntity
+    WebhookConfigurationResponse:
+      type: object
+      properties:
+        webhookUrl:
+          type: string
+          description: Url of the webhook callback
+        returnFullEntity:
+          type: boolean
+          description: Flag that define webhook event payload, if set to true will be returned full entity othwerise only id
+        partnerUuid:
+          type: string
+          description: Partner Uuid
+        token:
+          type: string
+          description: Token that will be added into request Authorization header
 security:
   - bearerAuth: []
