@@ -223,8 +223,28 @@ webhooks:
 
 info:
   title: Webhooks
-  description: Webhooks description
-  version: 1.0.0-oas3.1
+  description: >-
+    <h2>Summary</h2>
+    Webhooks are automated messages sent from day.io when action with representing entity was successfully executed. <br />
+    
+    <h2>Scope of webhooks</h2>
+    Webhooks can be configured for the partner, which means that all webhooks for partner related companies will be send to to the same url. <a href="https://app.swaggerhub.com/apis/Day.io/ExternalAPI/1.0.5#/configuration/ConfigurationController_upsertPartnerWebhookConfiguration">Create partner webhook configuration</a><br />
+    Additionally we allow to create the dedicated webhook configuration per company. <a href="https://app.swaggerhub.com/apis/Day.io/ExternalAPI/1.0.5#/configuration/ConfigurationController_upsertCompanyWebhookConfiguration">Create company webhook configuration</a>
+    
+    <h2>Responded event data</h2>
+    During webhook configuration you can specify <code>returnFullEntity</code> field (default is <code>true</code>) that flag will define type for event data, return full entity event data or only identifiers (<code>{uuid: string, externalId: string}</code>).<br />
+    Each event will contain payload in format 
+    <code>{
+      data: {...\<eventData>},
+      eventType: \<event type name>
+    }</code>
+    
+    <h2>Verification of the webhook</h2>
+    To ensure that webhook request was send from the <b>Day.io</b> you can verify webhook signature.<br />
+    Day.io computes a hash message authentication code (HMAC) of the event payload using the <code>token</code> provided in the create webhook response as the secret and SHA256 as the hash function. Webhook event payloads include a Http-X-Dayio-Signature header, which is set to the computed HMAC.<br />
+    Event payload integrity can be verified by the subscriber by computing the event payload HMAC and checking that it is equal to the HMAC in the Http-X-Dayio-Signature header.
+
+  version: 1.0.2
   contact: {}
 components:
   schemas:
