@@ -3,7 +3,8 @@ paths:
   /v1/external-api/public/company:
     post:
       operationId: CompaniesController_createPartnerCompany
-      parameters:
+      tags:
+        - company
       requestBody:
         required: true
         content:
@@ -13,12 +14,45 @@ paths:
       responses:
         '201':
           description: Company is successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCompanyResponse'
         '401': &ref_4
           description: Invalid provided header token
+    get:
+      operationId: CompaniesController_getCompany
+      tags:
+        - company
+      parameters:
+        - name: uuid
+          required: false
+          in: query
+          description: Entity uuid
+          schema:
+            type: string
+        - name: externalId
+          required: false
+          in: query
+          description: Entity external id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Company data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Company'
+        '401': *ref_4
+        '404':
+          description: Company is not found
 
   /v1/external-api/public/company/{externalCompanyId}:
     put:
       operationId: CompaniesController_updatePartnerCompany
+      tags:
+        - company
       parameters:
         - name: externalCompanyId
           required: true
@@ -42,8 +76,9 @@ paths:
   /v1/external-api/public/company/{externalCompanyId}/employee:
     post:
       operationId: UserProfilesController_createPartnerCompanyEmployee
+      tags:
+        - employee
       parameters:
-
         - name: externalCompanyId
           required: true
           in: path
@@ -68,6 +103,8 @@ paths:
 
     put:
       operationId: UserProfilesController_updatePartnerCompanyEmployee
+      tags:
+        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -89,10 +126,45 @@ paths:
           description: Company is not found
         '409':
           description: User profile is not found
-
-  /v1/external-api/public/company/{externalCompanyId}/employee/{externalProfileId}/token:
     get:
-      operationId: UserProfilesController_getExternalAuthToken
+      operationId: UserProfilesController_getEmployeeByIdentifiers
+      tags:
+        - employee
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+        - name: uuid
+          required: false
+          in: query
+          description: Entity uuid
+          schema:
+            type: string
+        - name: externalId
+          required: false
+          in: query
+          description: Entity external id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Employee data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401': *ref_7
+        '404':
+          description: Company or user profile is not found
+
+  /v1/external-api/public/company/{externalCompanyId}/employee/{externalProfileId}/auth-url:
+    get:
+      operationId: UserProfilesController_getExternalAuthUrl
+      tags:
+        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -110,11 +182,11 @@ paths:
             type: string
       responses:
         '200':
-          description: Auth token successfully retrieved
+          description: Auth url for iframe successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetExternalAuthTokenResponse'
+                $ref: '#/components/schemas/GetExternalAuthUrlResponse'
         '401': *ref_7
         '404':
           description: Company or user profile is not found
@@ -164,6 +236,38 @@ paths:
         '401': *ref_10
         '404':
           description: Company is not found
+
+    get:
+      operationId: ClientsController_getClient
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+        - name: uuid
+          required: false
+          in: query
+          description: Entity uuid
+          schema:
+            type: string
+        - name: externalId
+          required: false
+          in: query
+          description: Entity external id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Client data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Client'
+        '401': *ref_10
+        '404':
+          description: Company or client is not found
 
   /v1/external-api/public/company/{externalCompanyId}/clients/managers:
     put:
@@ -236,6 +340,38 @@ paths:
         '404':
           description: Company is not found
 
+    get:
+      operationId: ServicesController_getProjectByIdentifiers
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+        - name: uuid
+          required: false
+          in: query
+          description: Entity uuid
+          schema:
+            type: string
+        - name: externalId
+          required: false
+          in: query
+          description: Entity external id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+        '401': *ref_13
+        '404':
+          description: Company or service is not found
+
   /v1/external-api/public/company/{externalCompanyId}/tasks:
     post:
       operationId: TasksController_createTask
@@ -296,6 +432,36 @@ paths:
       responses:
         '200':
           description: ''
+        '401': *ref_16
+
+    get:
+      operationId: TasksController_getProjectByIdentifiers
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+        - name: uuid
+          required: false
+          in: query
+          description: Entity uuid
+          schema:
+            type: string
+        - name: externalId
+          required: false
+          in: query
+          description: Entity external id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Task data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
         '401': *ref_16
 
   /v1/external-api/public/company/{externalCompanyId}/projects:
@@ -360,6 +526,38 @@ paths:
           description: ''
         '401': *ref_19
 
+    get:
+      operationId: ProjectsController_getProjectByIdentifiers
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: External company id (identifier defined on the client side)
+          schema:
+            type: string
+        - name: uuid
+          required: false
+          in: query
+          description: Entity uuid
+          schema:
+            type: string
+        - name: externalId
+          required: false
+          in: query
+          description: Entity external id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '401': *ref_19
+        '404':
+          description: Company or project is not found
+
   /v1/external-api/public/company/{externalCompanyId}/projects/archive:
     put:
       operationId: ProjectsController_archive
@@ -421,10 +619,150 @@ paths:
         '200':
           description: ''
         '401': *ref_19
+
+  v1/external-api/public/configuration/partner/{partnerUuid}/webhooks:
+    post:
+      operationId: ConfigurationController_upsertPartnerWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: partnerUuid
+          required: true
+          in: path
+          description: Partner uuid
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertWebhookRequestBody'
+      responses:
+        '201':
+          description: 'Successfully upserted webhook config for partner'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfigurationResponse'
+        '401': *ref_19
+    get:
+      operationId: ConfigurationController_getPartnerWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: partnerUuid
+          required: true
+          in: path
+          description: Partner uuid
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 'Successfully get webhook config for partner'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfigurationResponse'
+        '401': *ref_19
+    delete:
+      operationId: ConfigurationController_deletePartnerWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: partnerUuid
+          required: true
+          in: path
+          description: Partner uuid
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Successfully deleted webhook config for partner'
+        '401': *ref_19
+
+  v1/external-api/public/configuration/company/{externalCompanyId}/webhooks:
+    post:
+      operationId: ConfigurationController_upsertCompanyWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: Company external id (identifier in client system)
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpsertWebhookRequestBody'
+      responses:
+        '201':
+          description: 'Successfully upserted webhook config for company'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfigurationResponse'
+        '401': *ref_19
+    get:
+      operationId: ConfigurationController_getCompanyWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: Company external id (identifier in client system)
+          schema:
+            type: string
+      responses:
+        '201':
+          description: 'Successfully get webhook config for company'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookConfigurationResponse'
+        '401': *ref_19
+    delete:
+      operationId: ConfigurationController_deleteCompanyWebhookConfiguration
+      tags:
+        - configuration
+      parameters:
+        - name: externalCompanyId
+          required: true
+          in: path
+          description: Company external id (identifier in client system)
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'Successfully deleted webhook config for company'
+        '401': *ref_19
+
 info:
   title: API
-  description: API description
-  version: 1.0.0-oas3.1
+  description: >-
+    <h2>Summary</h2>
+    This is api documentation for <b>Day.io</b> api.<br />
+    To start using the api, communicate to <b>Day.io</b> to do all required configuration and provide the specific token that required to make api calls.<br />
+    This token must be added to the each request as Authorization: 'Bearer \<token>'.<br />
+    There 2 types of tokens:
+      <ul>
+      <li>with partner lvl permissions - used to only create new company and do configuration for partner lvl webhooks;</li>
+      <li>with company lvl permissions - used to invoke actions specific to provided company.</li>
+      </ul>
+    <h2>Flow</h2>
+    <ol>
+      <li>Communicate to <b>Day.io</b> and receive partner token.</li>
+      <li>Provide webhooks configuration using <a href="#configuration/ConfigurationController_upsertPartnerWebhookConfiguration" target="_blank">Configure webhooks</a> and store token to verify webhook sender, more details in the webhooks docs.</li>
+      <li>Create the company using <a href="#company/CompaniesController_createPartnerCompany" target="_blank">Create Company</a> and store company token to use it in the company specific actions, it also will create owner user.</li>
+      <li>Add company employees using <a href="#employee/UserProfilesController_createPartnerCompanyEmployee" target="_blank">Create Employee</a>.</li>
+      <li>Generate authorisation url for opening <b>Day.io</b> iframe using <a href="#employee/UserProfilesController_getExternalAuthUrl" target="_blank">Generate auth url</a>.</li>
+    </ol>
+  version: 1.0.5
   contact: { }
 servers:
   - url: https://stg-api.oitchau.com.br
@@ -432,10 +770,10 @@ servers:
 
 components:
   securitySchemes:
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: dayio-token
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     CreateWebhookRequestBody:
       type: object
@@ -540,6 +878,21 @@ components:
         - name
         - externalCompanyId
         - owner
+    CreateCompanyResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Company uuid (identifier in day.io)
+        externalId:
+          type: string
+          description: Company identifier in client system
+        name:
+          type: string
+          description: Company name
+        token:
+          type: string
+          description: JWT token for company specific actions
     UpdateCompanyRequestBody:
       type: object
       properties:
@@ -674,12 +1027,12 @@ components:
       required:
         - externalId
         - name
-    GetExternalAuthTokenResponse:
+    GetExternalAuthUrlResponse:
       type: object
       properties:
-        token:
+        url:
           type: string
-          description: Auth token that is used to work with application
+          description: Auth url that is used to work open the iframe
       required:
         - token
     CreateClientRequest:
@@ -746,6 +1099,18 @@ components:
         uuid:
           type: string
           description: Entity uuid
+        externalId:
+          type: string
+          description: Entity external id
+    UuidIdentifier:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity uuid
+    ExternalIdIdentifier:
+      type: object
+      properties:
         externalId:
           type: string
           description: Entity external id
@@ -1186,5 +1551,180 @@ components:
           $ref: '#/components/schemas/DeleteProjectMemberRequest'
       required:
         - content
+    BaseEntityUuidExternalIdResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Given entity uuid(PK)
+        externalId:
+          type: string
+          description: Entity externalId field
+      required:
+        - uuid
+        - externalId
+    UpsertWebhookRequestBody:
+      type: object
+      properties:
+        webhookUrl:
+          type: string
+          description: Url of the webhook callback
+        returnFullEntity:
+          type: boolean
+          description: Flag that define webhook event payload, if set to true will be returned full entity otherwise only id
+      required:
+        - webhookUrl
+        - returnFullEntity
+    WebhookConfigurationResponse:
+      type: object
+      properties:
+        webhookUrl:
+          type: string
+          description: Url of the webhook callback
+        returnFullEntity:
+          type: boolean
+          description: Flag that define webhook event payload, if set to true will be returned full entity othwerise only id
+        partnerUuid:
+          type: string
+          description: Partner Uuid
+        token:
+          type: string
+          description: Token that will be added into request Authorization header
+    Company:
+      properties:
+        uuid:
+          type: string
+          description: Company internal uuid (in Dayio system)
+        name:
+          type: string
+          description: Company name
+        externalId:
+          type: string
+          description: Company external id (in the client system)
+        active:
+          type: boolean
+          description: Is this company active or not
+    UserProfile:
+      properties:
+        uuid:
+          type: string
+          description: User Profile internal uuid (in Dayio system)
+        fullName:
+          type: string
+          description: User Profile name
+        externalId:
+          type: string
+          description: User Profile external id (in the client system)
+        active:
+          type: boolean
+          description: Is this company active or not
+        matricula:
+          type: string
+          description: User profile matricula
+        pis:
+          type: string
+          description: User profile pis
+    Client:
+      properties:
+        name:
+          type: string
+          description: Client name
+        uuid:
+          type: string
+          description: Client uuid
+        externalId:
+          type: string
+          description: Client external identifier
+        email:
+          type: string
+          description: Client contact person email
+        contactPerson:
+          type: string
+          description: Client contact person name
+        phoneNumber:
+          type: string
+          description: Client contact person phone number
+        companyUuid:
+          type: string
+          description: Client related company uuid
+    Service:
+      properties:
+        uuid:
+          type: string
+          description: Service uuid
+        externalId:
+          type: string
+          description: Service external identifier
+        name:
+          type: string
+          description: Service name
+        costPerHour:
+          type: number
+          description: Service cost per hour
+        startDate:
+          type: string
+          description: Service start date
+        status:
+          type: string
+          description: Service status
+        isDefault:
+          type: boolean
+          description: Is service default for the company
+    Project:
+      properties:
+        uuid:
+          type: string
+          description: Project uuid
+        externalId:
+          type: string
+          description: Project external identifier
+        name:
+          type: string
+          description: Project name
+        ownerUuid:
+          type: string
+          description: Project owner user uuid
+        locationUuids:
+          type: array
+          items:
+            type: string
+          description: Project related location uuid's
+        clientUuid:
+          type: string
+          description: Project related client uuid
+        deletedAt:
+          type: string
+          description: Project deleted at date
+        status:
+          type: string
+          description: Project status
+        restrictBasedOnSchedule:
+          type: boolean
+        estimatedHours:
+          type: number
+          description: Project estimated hours number
+        estimatedCost:
+          type: number
+          description: Project estimated cost number
+        isPublic:
+          type: boolean
+          description: Is project accessible for all members
+    Task:
+      properties:
+        uuid:
+          type: string
+          description: Task uuid
+        externalId:
+          type: string
+          description: Task external identifier
+        name:
+          type: string
+          description: Task name
+        projectUuid:
+          type: string
+          description: Task project uuid
+        deletedAt:
+          type: string
+          description: Task deleted at date
 security:
-  - ApiKeyAuth: []
+  - bearerAuth: []
