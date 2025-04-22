@@ -3,8 +3,7 @@ paths:
   /v1/external-api/public/company:
     post:
       operationId: CompaniesController_createPartnerCompany
-      tags:
-        - company
+      parameters: []
       requestBody:
         required: true
         content:
@@ -17,42 +16,37 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CreateCompanyResponse'
-        '401': &ref_4
+                $ref: '#/components/schemas/CreateCompanyResponseDto'
+        '401': &ref_0
           description: Invalid provided header token
+      tags: &ref_1
+        - company
+      security: &ref_2
+        - bearer: []
     get:
       operationId: CompaniesController_getCompany
-      tags:
-        - company
       parameters:
-        - name: uuid
-          required: false
+        - name: externalCompanyId
+          required: true
           in: query
-          description: Entity uuid
-          schema:
-            type: string
-        - name: externalId
-          required: false
-          in: query
-          description: Entity external id
+          description: External company id (identifier defined on the client side)
           schema:
             type: string
       responses:
         '200':
-          description: Company data
+          description: Company is successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Company'
-        '401': *ref_4
+                $ref: '#/components/schemas/GetCompanyResponseDto'
+        '401': *ref_0
         '404':
           description: Company is not found
-
+      tags: *ref_1
+      security: *ref_2
   /v1/external-api/public/company/{externalCompanyId}:
     put:
       operationId: CompaniesController_updatePartnerCompany
-      tags:
-        - company
       parameters:
         - name: externalCompanyId
           required: true
@@ -67,17 +61,16 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateCompanyRequestBody'
       responses:
-        '204':
-          description: Company is successfully created
-        '401': *ref_4
+        '200':
+          description: Company is successfully updated
+        '401': *ref_0
         '404':
           description: Company is not found
-
+      tags: *ref_1
+      security: *ref_2
   /v1/external-api/public/company/{externalCompanyId}/employee:
     post:
       operationId: UserProfilesController_createPartnerCompanyEmployee
-      tags:
-        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -94,17 +87,18 @@ paths:
       responses:
         '201':
           description: External user profile successfully created
-        '401': &ref_7
+        '401': &ref_3
           description: Invalid provided header token
         '404':
           description: Company is not found
         '409':
           description: User profile is already exists
-
+      tags: &ref_4
+        - employee
+      security: &ref_5
+        - bearer: []
     put:
       operationId: UserProfilesController_updatePartnerCompanyEmployee
-      tags:
-        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -121,15 +115,15 @@ paths:
       responses:
         '204':
           description: External user profile successfully updated
-        '401': *ref_7
+        '401': *ref_3
         '404':
           description: Company is not found
         '409':
           description: User profile is not found
+      tags: *ref_4
+      security: *ref_5
     get:
       operationId: UserProfilesController_getEmployeeByIdentifiers
-      tags:
-        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -151,20 +145,19 @@ paths:
             type: string
       responses:
         '200':
-          description: Employee data
+          description: User profile is successfully retrieved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserProfile'
-        '401': *ref_7
+                $ref: '#/components/schemas/BaseEntityIdsResponse'
+        '401': *ref_3
         '404':
           description: Company or user profile is not found
-
+      tags: *ref_4
+      security: *ref_5
   /v1/external-api/public/company/{externalCompanyId}/employee/{externalProfileId}/auth-url:
     get:
       operationId: UserProfilesController_getExternalAuthUrl
-      tags:
-        - employee
       parameters:
         - name: externalCompanyId
           required: true
@@ -187,10 +180,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetExternalAuthUrlResponse'
-        '401': *ref_7
+        '401': *ref_3
         '404':
           description: Company or user profile is not found
-
+      tags: *ref_4
+      security: *ref_5
   /v1/external-api/public/company/{externalCompanyId}/clients:
     post:
       operationId: ClientsController_createPartnerCompanyClient
@@ -210,11 +204,14 @@ paths:
       responses:
         '201':
           description: External client successfully created
-        '401': &ref_10
+        '401': &ref_6
           description: Invalid provided header token
         '404':
           description: Company is not found
-
+      tags: &ref_7
+        - default
+      security: &ref_8
+        - bearer: []
     put:
       operationId: ClientsController_updatePartnerCompanyClient
       parameters:
@@ -233,10 +230,11 @@ paths:
       responses:
         '204':
           description: External client successfully updated
-        '401': *ref_10
+        '401': *ref_6
         '404':
           description: Company is not found
-
+      tags: *ref_7
+      security: *ref_8
     get:
       operationId: ClientsController_getClient
       parameters:
@@ -259,16 +257,11 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Client data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Client'
-        '401': *ref_10
+        '401': *ref_6
         '404':
           description: Company or client is not found
-
+      tags: *ref_7
+      security: *ref_8
   /v1/external-api/public/company/{externalCompanyId}/clients/managers:
     put:
       operationId: ClientsController_updatePartnerCompanyEmployee
@@ -288,12 +281,13 @@ paths:
       responses:
         '204':
           description: External client managers successfully updated
-        '401': *ref_10
+        '401': *ref_6
         '404':
           description: Company is not found
         '409':
           description: User profiles is not found
-
+      tags: *ref_7
+      security: *ref_8
   /v1/external-api/public/company/{externalCompanyId}/services:
     post:
       operationId: ServicesController_createPartnerCompanyClient
@@ -313,11 +307,14 @@ paths:
       responses:
         '201':
           description: External service successfully created
-        '401': &ref_13
+        '401': &ref_9
           description: Invalid provided header token
         '404':
           description: Company is not found
-
+      tags: &ref_10
+        - default
+      security: &ref_11
+        - bearer: []
     put:
       operationId: ServicesController_updatePartnerCompanyClient
       parameters:
@@ -336,10 +333,11 @@ paths:
       responses:
         '204':
           description: External service successfully updated
-        '401': *ref_13
+        '401': *ref_9
         '404':
           description: Company is not found
-
+      tags: *ref_10
+      security: *ref_11
     get:
       operationId: ServicesController_getProjectByIdentifiers
       parameters:
@@ -363,15 +361,10 @@ paths:
             type: string
       responses:
         '200':
-          description: Service data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Service'
-        '401': *ref_13
-        '404':
-          description: Company or service is not found
-
+          description: ''
+        '401': *ref_9
+      tags: *ref_10
+      security: *ref_11
   /v1/external-api/public/company/{externalCompanyId}/tasks:
     post:
       operationId: TasksController_createTask
@@ -391,9 +384,12 @@ paths:
       responses:
         '201':
           description: ''
-        '401': &ref_16
+        '401': &ref_12
           description: Invalid provided header token
-
+      tags: &ref_13
+        - default
+      security: &ref_14
+        - bearer: []
     put:
       operationId: TasksController_updateTask
       parameters:
@@ -412,8 +408,9 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_16
-
+        '401': *ref_12
+      tags: *ref_13
+      security: *ref_14
     delete:
       operationId: TasksController_delete
       parameters:
@@ -432,8 +429,9 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_16
-
+        '401': *ref_12
+      tags: *ref_13
+      security: *ref_14
     get:
       operationId: TasksController_getProjectByIdentifiers
       parameters:
@@ -457,13 +455,10 @@ paths:
             type: string
       responses:
         '200':
-          description: Task data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Task'
-        '401': *ref_16
-
+          description: ''
+        '401': *ref_12
+      tags: *ref_13
+      security: *ref_14
   /v1/external-api/public/company/{externalCompanyId}/projects:
     post:
       operationId: ProjectsController_create
@@ -483,9 +478,12 @@ paths:
       responses:
         '201':
           description: ''
-        '401': &ref_19
+        '401': &ref_15
           description: Invalid provided header token
-
+      tags: &ref_16
+        - default
+      security: &ref_17
+        - bearer: []
     put:
       operationId: ProjectsController_update
       parameters:
@@ -504,8 +502,9 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_19
-
+        '401': *ref_15
+      tags: *ref_16
+      security: *ref_17
     delete:
       operationId: ProjectsController_delete
       parameters:
@@ -524,8 +523,9 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_19
-
+        '401': *ref_15
+      tags: *ref_16
+      security: *ref_17
     get:
       operationId: ProjectsController_getProjectByIdentifiers
       parameters:
@@ -549,15 +549,10 @@ paths:
             type: string
       responses:
         '200':
-          description: Project data
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Project'
-        '401': *ref_19
-        '404':
-          description: Company or project is not found
-
+          description: ''
+        '401': *ref_15
+      tags: *ref_16
+      security: *ref_17
   /v1/external-api/public/company/{externalCompanyId}/projects/archive:
     put:
       operationId: ProjectsController_archive
@@ -577,8 +572,9 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_19
-
+        '401': *ref_15
+      tags: *ref_16
+      security: *ref_17
   /v1/external-api/public/company/{externalCompanyId}/projects/members:
     post:
       operationId: ProjectsController_assignMembers
@@ -598,8 +594,9 @@ paths:
       responses:
         '201':
           description: ''
-        '401': *ref_19
-
+        '401': *ref_15
+      tags: *ref_16
+      security: *ref_17
     delete:
       operationId: ProjectsController_deleteMember
       parameters:
@@ -618,18 +615,114 @@ paths:
       responses:
         '200':
           description: ''
-        '401': *ref_19
-
-  v1/external-api/public/configuration/partner/{partnerUuid}/webhooks:
+        '401': *ref_15
+      tags: *ref_16
+      security: *ref_17
+  /v1/external-api/public/health:
+    get:
+      operationId: PublicHealthController_check
+      parameters: []
+      responses:
+        '200':
+          description: The Health Check is successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  info:
+                    type: object
+                    example: &ref_18
+                      database: &ref_19
+                        status: up
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties:
+                        type: string
+                    nullable: true
+                  error:
+                    type: object
+                    example: {}
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties:
+                        type: string
+                    nullable: true
+                  details:
+                    type: object
+                    example: *ref_18
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties:
+                        type: string
+        '503':
+          description: The Health Check is not successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: error
+                  info:
+                    type: object
+                    example: *ref_18
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties:
+                        type: string
+                    nullable: true
+                  error:
+                    type: object
+                    example:
+                      redis: &ref_20
+                        status: down
+                        message: Could not connect
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties:
+                        type: string
+                    nullable: true
+                  details:
+                    type: object
+                    example:
+                      database: *ref_19
+                      redis: *ref_20
+                    additionalProperties:
+                      type: object
+                      properties:
+                        status:
+                          type: string
+                      additionalProperties:
+                        type: string
+      tags:
+        - health check
+  /v1/external-api/public/configuration/partner/{partnerUuid}/webhooks:
     post:
       operationId: ConfigurationController_upsertPartnerWebhookConfiguration
-      tags:
-        - configuration
       parameters:
         - name: partnerUuid
           required: true
           in: path
-          description: Partner uuid
           schema:
             type: string
       requestBody:
@@ -640,59 +733,45 @@ paths:
               $ref: '#/components/schemas/UpsertWebhookRequestBody'
       responses:
         '201':
-          description: 'Successfully upserted webhook config for partner'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookConfigurationResponse'
-        '401': *ref_19
+          description: ''
+        '401': &ref_21
+          description: Invalid provided header token
+      tags: &ref_22
+        - configuration
+      security: &ref_23
+        - bearer: []
     get:
       operationId: ConfigurationController_getPartnerWebhookConfiguration
-      tags:
-        - configuration
       parameters:
         - name: partnerUuid
           required: true
           in: path
-          description: Partner uuid
           schema:
             type: string
       responses:
-        '201':
-          description: 'Successfully get webhook config for partner'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookConfigurationResponse'
-        '401': *ref_19
+        '200':
+          description: ''
+        '401': *ref_21
+      tags: *ref_22
+      security: *ref_23
     delete:
-      operationId: ConfigurationController_deletePartnerWebhookConfiguration
-      tags:
-        - configuration
+      operationId: ConfigurationController_deletePartnerWebhook
       parameters:
         - name: partnerUuid
           required: true
           in: path
-          description: Partner uuid
           schema:
             type: string
       responses:
-        '204':
-          description: 'Successfully deleted webhook config for partner'
-        '401': *ref_19
-
-  v1/external-api/public/configuration/company/{externalCompanyId}/webhooks:
+        '200':
+          description: ''
+        '401': *ref_21
+      tags: *ref_22
+      security: *ref_23
+  /v1/external-api/public/configuration/company/{externalCompanyId}/webhooks:
     post:
       operationId: ConfigurationController_upsertCompanyWebhookConfiguration
-      tags:
-        - configuration
-      parameters:
-        - name: externalCompanyId
-          required: true
-          in: path
-          description: Company external id (identifier in client system)
-          schema:
-            type: string
+      parameters: []
       requestBody:
         required: true
         content:
@@ -701,100 +780,68 @@ paths:
               $ref: '#/components/schemas/UpsertWebhookRequestBody'
       responses:
         '201':
-          description: 'Successfully upserted webhook config for company'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookConfigurationResponse'
-        '401': *ref_19
+          description: ''
+        '401': *ref_21
+      tags: *ref_22
+      security: *ref_23
     get:
       operationId: ConfigurationController_getCompanyWebhookConfiguration
-      tags:
-        - configuration
-      parameters:
-        - name: externalCompanyId
-          required: true
-          in: path
-          description: Company external id (identifier in client system)
-          schema:
-            type: string
+      parameters: []
       responses:
-        '201':
-          description: 'Successfully get webhook config for company'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WebhookConfigurationResponse'
-        '401': *ref_19
+        '200':
+          description: ''
+        '401': *ref_21
+      tags: *ref_22
+      security: *ref_23
     delete:
-      operationId: ConfigurationController_deleteCompanyWebhookConfiguration
-      tags:
-        - configuration
-      parameters:
-        - name: externalCompanyId
-          required: true
-          in: path
-          description: Company external id (identifier in client system)
-          schema:
-            type: string
+      operationId: ConfigurationController_deleteCompanyWebhook
+      parameters: []
       responses:
-        '204':
-          description: 'Successfully deleted webhook config for company'
-        '401': *ref_19
-
+        '200':
+          description: ''
+        '401': *ref_21
+      tags: *ref_22
+      security: *ref_23
 info:
-  title: API
-  description: >-
+  title: Day.io external API
+  description: |-
     <h2>Summary</h2>
-    This is api documentation for <b>Day.io</b> api.<br />
-    To start using the api, communicate to <b>Day.io</b> to do all required configuration and provide the specific token that required to make api calls.<br />
-    This token must be added to the each request as Authorization: 'Bearer \<token>'.<br />
-    There 2 types of tokens:
-      <ul>
-      <li>with partner lvl permissions - used to only create new company and do configuration for partner lvl webhooks;</li>
-      <li>with company lvl permissions - used to invoke actions specific to provided company.</li>
-      </ul>
-    <h2>Flow</h2>
-    <ol>
-      <li>Communicate to <b>Day.io</b> and receive partner token.</li>
-      <li>Provide webhooks configuration using <a href="#configuration/ConfigurationController_upsertPartnerWebhookConfiguration" target="_blank">Configure webhooks</a> and store token to verify webhook sender, more details in the webhooks docs.</li>
-      <li>Create the company using <a href="#company/CompaniesController_createPartnerCompany" target="_blank">Create Company</a> and store company token to use it in the company specific actions, it also will create owner user.</li>
-      <li>Add company employees using <a href="#employee/UserProfilesController_createPartnerCompanyEmployee" target="_blank">Create Employee</a>.</li>
-      <li>Generate authorisation url for opening <b>Day.io</b> iframe using <a href="#employee/UserProfilesController_getExternalAuthUrl" target="_blank">Generate auth url</a>.</li>
-    </ol>
-  version: 1.0.5
-  contact: { }
+          <p>This is API documentation for <b>Day.io</b> API.<br />
+          To start using the API, communicate with <b>Day.io</b> to do all required configuration and provide the specific token required to make API calls.<br />
+          This token must be added to each request as <code>Authorization: 'Bearer &lt;token&gt;'</code>.<br />
+          There are two types of tokens:</p>
+          <ul>
+            <li><b>Partner level permissions</b> - used to create a new company and configure partner-level webhooks.</li>
+            <li><b>Company level permissions</b> - used to invoke actions specific to a provided company.</li>
+          </ul><br />
+          <h2>Flow</h2>
+          <ol>
+            <li>Communicate with <b>Day.io</b> and receive a partner token.</li>
+            <li>Provide webhook configuration using 
+            <a href="#configuration/ConfigurationController_upsertPartnerWebhookConfiguration" target="_blank">Configure webhooks</a> and store the token to verify the webhook sender. More details are in the webhooks docs.</li>
+            <li>Create a company using 
+            <a href="#company/CompaniesController_createPartnerCompany" target="_blank">Create Company</a> and store the company token to use it in company-specific actions. This will also create an owner user.</li>
+            <li>Add company employees using 
+            <a href="#employee/UserProfilesController_createPartnerCompanyEmployee" target="_blank">Create Employee</a>.</li>
+            <li>Generate an authorization URL for opening the <b>Day.io</b> iframe using 
+            <a href="#employee/UserProfilesController_getExternalAuthUrl" target="_blank">Generate auth URL</a>.</li>
+          </ol>
+  version: 1.2.0
+  contact: {}
+tags: []
 servers:
   - url: https://stg-api.oitchau.com.br
     description: Stage server (uses test data)
-
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
+    bearer:
       scheme: bearer
       bearerFormat: JWT
+      type: http
   schemas:
-    CreateWebhookRequestBody:
+    CdcPayload:
       type: object
-      properties:
-        webhookUrl:
-          type: string
-        companyUuid:
-          type: string
-        partnerUuid:
-          type: string
-      required:
-        - webhookUrl
-    CreateConsumerRequestBody:
-      type: object
-      properties:
-        companyUuid:
-          type: string
-          description: Company uuid, used for company that is not related to the partner
-        partnerUuid:
-          type: string
-          description: Partner uuid
+      properties: {}
     Address:
       type: object
       properties:
@@ -874,25 +921,36 @@ components:
           description: Initial owner user information
           allOf:
             - $ref: '#/components/schemas/Owner'
+        locale:
+          type: string
+          description: Locale preference
+          enum:
+            - en
+            - es
+            - he
+            - pt-BR
+            - pt-PT
+          example: pt-BR
       required:
         - name
         - externalCompanyId
         - owner
-    CreateCompanyResponse:
+    CreateCompanyResponseDto:
       type: object
       properties:
         uuid:
           type: string
-          description: Company uuid (identifier in day.io)
+          description: Company internal uuid (in Dayio system)
         externalId:
           type: string
-          description: Company identifier in client system
-        name:
-          type: string
-          description: Company name
+          description: Company external id (in the client system)
         token:
           type: string
-          description: JWT token for company specific actions
+          description: Token that will be added into request Authorization header
+      required:
+        - uuid
+        - externalId
+        - token
     UpdateCompanyRequestBody:
       type: object
       properties:
@@ -906,6 +964,158 @@ components:
             - $ref: '#/components/schemas/Location'
       required:
         - name
+    GetCompanyResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Company ID
+        slug:
+          type: string
+          description: Company slug
+        companyType:
+          type: string
+          description: Company type
+        active:
+          type: boolean
+          description: Is the company active?
+        name:
+          type: string
+          description: Company name
+        createdAt:
+          type: string
+          description: Creation date
+        updatedAt:
+          type: string
+          description: Last update date
+        creator:
+          type: number
+          description: Creator ID
+        defaultLocation:
+          type: number
+          description: Default location ID
+        taxPayerId:
+          type: object
+          description: Tax payer ID
+          nullable: true
+        employeeCount:
+          type: object
+          description: Employee count
+          nullable: true
+        employer:
+          type: number
+          description: Employer ID
+        uuid:
+          type: string
+          description: Company UUID
+        sourcePlatform:
+          type: string
+          description: Source platform
+        sourceType:
+          type: string
+          description: Source type
+        logoId:
+          type: object
+          description: Logo ID
+          nullable: true
+        logoVersion:
+          type: object
+          description: Logo version
+          nullable: true
+        companySubscriptionId:
+          type: object
+          description: Company subscription ID
+          nullable: true
+        tabletCode:
+          type: string
+          description: Tablet code for the Kiosk App
+          example: 1a2b3c
+        referredById:
+          type: object
+          description: Referred by ID
+          nullable: true
+        documentLogoId:
+          type: object
+          description: Document logo ID
+          nullable: true
+        clientId:
+          type: object
+          description: Client ID
+          nullable: true
+        clientSecret:
+          type: object
+          description: Client secret
+          nullable: true
+        settingsUpdatedAt:
+          type: object
+          description: Settings updated at
+          nullable: true
+        locale:
+          type: object
+          description: Locale
+          nullable: true
+        currency:
+          type: object
+          description: Currency
+          nullable: true
+        legacyHubspotId:
+          type: object
+          description: Legacy Hubspot ID
+          nullable: true
+        gainsightId:
+          type: object
+          description: Gainsight ID
+          nullable: true
+        beaconManufacture:
+          type: string
+          description: Beacon manufacture
+        timesheetStartDay:
+          type: number
+          description: Timesheet start day
+        organizationId:
+          type: object
+          description: Organization ID
+          nullable: true
+        externalId:
+          type: string
+          description: External ID
+        partner:
+          type: string
+          description: Partner UUID
+      required:
+        - id
+        - slug
+        - companyType
+        - active
+        - name
+        - createdAt
+        - updatedAt
+        - creator
+        - defaultLocation
+        - taxPayerId
+        - employeeCount
+        - employer
+        - uuid
+        - sourcePlatform
+        - sourceType
+        - logoId
+        - logoVersion
+        - companySubscriptionId
+        - tabletCode
+        - referredById
+        - documentLogoId
+        - clientId
+        - clientSecret
+        - settingsUpdatedAt
+        - locale
+        - currency
+        - legacyHubspotId
+        - gainsightId
+        - beaconManufacture
+        - timesheetStartDay
+        - organizationId
+        - externalId
+        - partner
     CreateExternalUserProfileRequestBody:
       type: object
       properties:
@@ -956,9 +1166,9 @@ components:
         associateProducts:
           type: array
           description: Is provider user active
-          example: &ref_21
+          example: &ref_24
             - ta
-          items: &ref_22
+          items: &ref_25
             type: string
             enum:
               - ta
@@ -1019,8 +1229,8 @@ components:
         associateProducts:
           type: array
           description: Is provider user active
-          example: *ref_21
-          items: *ref_22
+          example: *ref_24
+          items: *ref_25
         name:
           type: string
           description: User profile full name
@@ -1034,7 +1244,23 @@ components:
           type: string
           description: Auth url that is used to work open the iframe
       required:
-        - token
+        - url
+    BaseEntityIdsResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          description: Entity internal uuid (in Dayio system)
+        externalId:
+          type: string
+          description: Entity external id (in the client system)
+        id:
+          type: number
+          description: Entity internal id (in Dayio system)
+      required:
+        - uuid
+        - externalId
+        - id
     CreateClientRequest:
       type: object
       properties:
@@ -1099,18 +1325,6 @@ components:
         uuid:
           type: string
           description: Entity uuid
-        externalId:
-          type: string
-          description: Entity external id
-    UuidIdentifier:
-      type: object
-      properties:
-        uuid:
-          type: string
-          description: Entity uuid
-    ExternalIdIdentifier:
-      type: object
-      properties:
         externalId:
           type: string
           description: Entity external id
@@ -1448,9 +1662,6 @@ components:
       properties:
         updatedBy:
           description: Reference to user that invoked the action
-          oneOf:
-            - $ref: '#/components/schemas/UuidIdentifier'
-            - $ref: '#/components/schemas/ExternalIdIdentifier'
           allOf:
             - $ref: '#/components/schemas/ApiEntityIdentifiersRequest'
       required:
@@ -1551,180 +1762,13 @@ components:
           $ref: '#/components/schemas/DeleteProjectMemberRequest'
       required:
         - content
-    BaseEntityUuidExternalIdResponse:
-      type: object
-      properties:
-        uuid:
-          type: string
-          description: Given entity uuid(PK)
-        externalId:
-          type: string
-          description: Entity externalId field
-      required:
-        - uuid
-        - externalId
     UpsertWebhookRequestBody:
       type: object
       properties:
         webhookUrl:
           type: string
-          description: Url of the webhook callback
         returnFullEntity:
           type: boolean
-          description: Flag that define webhook event payload, if set to true will be returned full entity otherwise only id
       required:
         - webhookUrl
         - returnFullEntity
-    WebhookConfigurationResponse:
-      type: object
-      properties:
-        webhookUrl:
-          type: string
-          description: Url of the webhook callback
-        returnFullEntity:
-          type: boolean
-          description: Flag that define webhook event payload, if set to true will be returned full entity othwerise only id
-        partnerUuid:
-          type: string
-          description: Partner Uuid
-        token:
-          type: string
-          description: Token that will be added into request Authorization header
-    Company:
-      properties:
-        uuid:
-          type: string
-          description: Company internal uuid (in Dayio system)
-        name:
-          type: string
-          description: Company name
-        externalId:
-          type: string
-          description: Company external id (in the client system)
-        active:
-          type: boolean
-          description: Is this company active or not
-    UserProfile:
-      properties:
-        uuid:
-          type: string
-          description: User Profile internal uuid (in Dayio system)
-        fullName:
-          type: string
-          description: User Profile name
-        externalId:
-          type: string
-          description: User Profile external id (in the client system)
-        active:
-          type: boolean
-          description: Is this company active or not
-        matricula:
-          type: string
-          description: User profile matricula
-        pis:
-          type: string
-          description: User profile pis
-    Client:
-      properties:
-        name:
-          type: string
-          description: Client name
-        uuid:
-          type: string
-          description: Client uuid
-        externalId:
-          type: string
-          description: Client external identifier
-        email:
-          type: string
-          description: Client contact person email
-        contactPerson:
-          type: string
-          description: Client contact person name
-        phoneNumber:
-          type: string
-          description: Client contact person phone number
-        companyUuid:
-          type: string
-          description: Client related company uuid
-    Service:
-      properties:
-        uuid:
-          type: string
-          description: Service uuid
-        externalId:
-          type: string
-          description: Service external identifier
-        name:
-          type: string
-          description: Service name
-        costPerHour:
-          type: number
-          description: Service cost per hour
-        startDate:
-          type: string
-          description: Service start date
-        status:
-          type: string
-          description: Service status
-        isDefault:
-          type: boolean
-          description: Is service default for the company
-    Project:
-      properties:
-        uuid:
-          type: string
-          description: Project uuid
-        externalId:
-          type: string
-          description: Project external identifier
-        name:
-          type: string
-          description: Project name
-        ownerUuid:
-          type: string
-          description: Project owner user uuid
-        locationUuids:
-          type: array
-          items:
-            type: string
-          description: Project related location uuid's
-        clientUuid:
-          type: string
-          description: Project related client uuid
-        deletedAt:
-          type: string
-          description: Project deleted at date
-        status:
-          type: string
-          description: Project status
-        restrictBasedOnSchedule:
-          type: boolean
-        estimatedHours:
-          type: number
-          description: Project estimated hours number
-        estimatedCost:
-          type: number
-          description: Project estimated cost number
-        isPublic:
-          type: boolean
-          description: Is project accessible for all members
-    Task:
-      properties:
-        uuid:
-          type: string
-          description: Task uuid
-        externalId:
-          type: string
-          description: Task external identifier
-        name:
-          type: string
-          description: Task name
-        projectUuid:
-          type: string
-          description: Task project uuid
-        deletedAt:
-          type: string
-          description: Task deleted at date
-security:
-  - bearerAuth: []
